@@ -7,16 +7,17 @@ import { AuthService } from './auth/auth.service';
 import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './auth/constants';
+import { JwtStrategy } from './auth/jwt.strategy';
 @Module({
   imports: [
     UsersModule,
     AuthModule,
     JwtModule.register({
-      secret: jwtConstants.secret,
-      signOptions: { expiresIn: '60s' },
+      secret: jwtConstants.SECRET_ACCESS_TOKEN_KEY,
+      signOptions: { expiresIn: jwtConstants.SECRET_ACCESS_EXPIRED_TIME },
     }),
   ],
   controllers: [AppController],
-  providers: [AppService, AppGateway, AuthService],
+  providers: [AppService, AppGateway, AuthService, JwtStrategy],
 })
 export class AppModule {}

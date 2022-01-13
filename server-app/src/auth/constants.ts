@@ -1,3 +1,6 @@
 export const jwtConstants = {
-  secret: 'secretKey',
+  SECRET_ACCESS_TOKEN_KEY: 'qI7jtdTStMT0sGZyJxsdMyhThZMQmxrGlLS2JwT684s=',
+  SECRET_ACCESS_EXPIRED_TIME: '30s',
+  SECRET_REFRESH_TOKEN_KEY: 'aa1jtdTSteW0sGOLPsdMdyhThZMQmxrGlLS2JwT123a=',
+  SECRET_REFRESH_EXPIRED_TIME: '2m',
 };
