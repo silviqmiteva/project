@@ -1,100 +1,81 @@
 import { Injectable } from '@nestjs/common';
-import { Role } from './role.enum';
 import * as bcrypt from 'bcrypt';
-import * as fs from 'fs';
+import { UserRepository } from './repositories/users.repository';
+import { BlacklistRepository } from './repositories/blacklist.repository';
+import { RoleRepository } from './repositories/role.repository';
+import { Role } from './roles/role.enum';
 
 export type User = {
-  id: number;
   username: string;
   password: string;
-  roles: Role[];
+  role: string;
   email: string;
   refresh_token: string;
 };
 
 @Injectable()
 export class UsersService {
-  private users: User[] = [
-    {
-      id: 1,
-      username: 'ivan',
-      password: '$2b$05$o0srWG7oILhbzxmhz.ogYugjdvXL55hizisOBaOdm0VwUA87O1Wz2', // bcrypt.hash(plainPassword, salt)
-      roles: [Role.User],
-      email: 'ivan@gmail.com',
-      refresh_token: '',
-    },
-    {
-      id: 2,
-      username: 'qsen',
-      password: '$2b$05$FhCjO1c1Yte8mpb.LZFVRuBw9DFnin10ykKmEk2yVxyZYsiIJpt9S',
-      roles: [Role.Admin],
-      email: 'qsen@gmail.com',
-      refresh_token: '',
-    },
-  ];
+  constructor(
+    private readonly usersRepository: UserRepository,
+    private readonly blacklistRepository: BlacklistRepository,
+    private readonly roleRepository: RoleRepository,
+  ) {}
+
+  async createUser(userData: any): Promise<User> {
+    const username = userData.username;
+    const email = userData.email;
+    const role = Role.User;
+    const refresh_token = '';
+    let password = userData.password;
+    const salt = bcrypt.genSaltSync(5);
+    password = bcrypt.hashSync(password, salt);
+
+    return this.usersRepository.create({
+      username,
+      email,
+      password,
+      role,
+      refresh_token,
+    });
+  }
 
   async findOne(username: string): Promise<User | undefined> {
-    return this.users.find((user) => user.username === username);
+    return this.usersRepository.findOne({ username: username });
   }
 
-  getAllUsers() {
-    return this.users;
+  async findOneAndUpdate(
+    filter: object,
+    updates: object,
+  ): Promise<User | undefined> {
+    return this.usersRepository.findOneAndUpdate(filter, updates);
   }
 
-  getUserData(user: any) {
-    const obj = this.users.find((el) => el.id === user.id);
-    const { password, ...rest } = obj;
-    return rest;
+  async getAllUsers(): Promise<User[] | undefined> {
+    return this.usersRepository.getAllUsers();
   }
 
-  createUser(user: {
-    username: any;
-    email: any;
-    id: any;
-    password: any;
-    roles: any;
-    refresh_token: any;
-  }) {
-    const usernameExists = this.users.find(
-      (el) => el.username === user.username,
+  async getUserByRefreshToken(refToken: string): Promise<User | undefined> {
+    return this.usersRepository.findOne({ refresh_token: refToken });
+  }
+
+  async getUserData(userId: string): Promise<User> {
+    return this.usersRepository.findOne({ id: userId });
+  }
+
+  logoutUser(userId: string, refToken: string) {
+    this.usersRepository.findOneAndUpdate(
+      { id: userId },
+      { refresh_token: '' },
     );
-    if (usernameExists) {
-      return { error: 'Account with this username already exists' };
-    }
-    const emailExists = this.users.find((el) => el.email === user.email);
-    if (emailExists) {
-      return { error: 'Account with this email already exists' };
-    }
-    const id = this.users[this.users.length - 1].id;
-    user.id = id + 1;
-    const salt = bcrypt.genSaltSync(5);
-    user.password = bcrypt.hashSync(user.password, salt);
-    user.roles = ['user'];
-    user.refresh_token = {};
-    this.users.push(user);
-    return { message: 'success' };
+
+    this.blacklistRepository.create({ refresh_token: refToken });
   }
 
-  async updateRefreshToken(id: number, refresh_token: string) {
-    const user = this.users.find((el) => el.id === id);
-    user.refresh_token = refresh_token;
+  async createRole(name: string): Promise<any> {
+    return this.roleRepository.create({ name: name });
   }
 
-  async getUserByRefreshToken(refToken: string): Promise<any> {
-    const user = this.users.find((el) => el.refresh_token === refToken);
-    const { password, ...rest } = user;
-    return rest;
-  }
-
-  logoutUser(id: number) {
-    const userInd = this.users.findIndex((el) => el.id === id);
-    fs.appendFile(
-      'blacklist.txt',
-      this.users[userInd].refresh_token + ';',
-      (err) => {
-        if (err) throw err;
-        this.users[userInd].refresh_token = '';
-      },
-    );
+  async getTokenFromBlacklist(token: string): Promise<any> {
+    return this.blacklistRepository.findOne({ refresh_token: token });
   }
 }
