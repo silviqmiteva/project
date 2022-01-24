@@ -1,8 +1,8 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { Role } from './role.enum';
-import { Roles } from './roles.decorator';
-import { RolesGuard } from './roles.guard';
+import { Role } from './roles/role.enum';
+import { Roles } from '../users/roles/roles.decorator';
+import { RolesGuard } from '../users/roles/roles.guard';
 import { UsersService } from './users.service';
 
 @Controller('users')
@@ -20,6 +20,13 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   getProfile(@Req() req): any {
-    return this.userService.getUserData(req.user);
+    return this.userService.getUserData(req.user.id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('role')
+  createRole(@Req() req): any {
+    const role = req.body;
+    return this.userService.createRole(role.name);
   }
 }

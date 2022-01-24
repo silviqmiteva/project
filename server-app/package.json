@@ -24,6 +24,7 @@
     "@nestjs/common": "^8.0.0",
     "@nestjs/core": "^8.0.0",
     "@nestjs/jwt": "^8.0.0",
+    "@nestjs/mongoose": "^9.0.2",
     "@nestjs/passport": "^8.0.1",
     "@nestjs/platform-express": "^8.0.0",
     "@nestjs/platform-socket.io": "^8.2.4",
@@ -34,6 +35,7 @@
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "moment": "^2.29.1",
+    "mongoose": "^6.1.6",
     "nodemon": "^2.0.15",
     "passport": "^0.4.1",
     "passport-jwt": "^4.0.0",
@@ -41,7 +43,8 @@
     "rand-token": "^1.0.1",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
-    "rxjs": "^7.2.0"
+    "rxjs": "^7.2.0",
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^8.0.0",

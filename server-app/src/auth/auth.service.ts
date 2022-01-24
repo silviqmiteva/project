@@ -15,16 +15,12 @@ export class AuthService {
   async validateUser(username: string, pass: string): Promise<any> {
     const user = await this.usersService.findOne(username);
     if (user) {
-      const obj = bcrypt.compare(pass, user.password).then((res) => {
-        if (res) {
-          const { password, ...rest } = user;
-          console.log(rest);
-          return rest;
-        } else {
-          return null;
-        }
-      });
-      return obj;
+      const obj = bcrypt.compareSync(pass, user.password);
+      if (obj) {
+        const { password, ...rest } = user;
+        return rest;
+      }
+      return null;
     } else {
       return null;
     }
@@ -33,8 +29,8 @@ export class AuthService {
   async getJwtToken(user: any) {
     const payload = {
       username: user.username,
-      sub: user.id,
-      roles: user.roles,
+      sub: user['_id'].toString(),
+      role: user.role,
     };
     return {
       access_token: this.jwtService.sign(payload),
@@ -45,7 +41,7 @@ export class AuthService {
     return this.usersService.createUser(userData);
   }
 
-  async getRefreshToken(userId: number): Promise<string> {
+  async getRefreshToken(userId: string): Promise<string> {
     const token = {
       name: randomToken.generate(10),
     };
@@ -54,11 +50,14 @@ export class AuthService {
       expiresIn: jwtConstants.SECRET_REFRESH_EXPIRED_TIME,
     });
 
-    await this.usersService.updateRefreshToken(userId, refreshToken); // update user token in db/arr
+    await this.usersService.findOneAndUpdate(
+      { id: userId },
+      { refresh_token: refreshToken },
+    );
     return refreshToken;
   }
 
-  logout(id: number) {
-    this.usersService.logoutUser(id);
+  logout(id: string, refToken: string) {
+    this.usersService.logoutUser(id, refToken);
   }
 }

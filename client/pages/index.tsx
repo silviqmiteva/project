@@ -11,7 +11,7 @@ let accessTokenInStore = '';
 function login() {
   const user = {
     username: 'qsen', // ivan qsen
-    password: '12345', // 1234 5
+    password: '12345678', // 0-7 1-8
   };
 
   fetch('http://localhost:3001/auth/login', {
@@ -42,7 +42,7 @@ function logout() {
       'Content-Type': 'application/json',
     },
     credentials: 'include',
-    body: JSON.stringify({ userId: 2 }),
+    body: JSON.stringify({ userId: '61e692115985e38070a9a629' }),
   })
     .then((res) => res.json())
     .then((data) => {
@@ -97,21 +97,43 @@ function accessProtectedRoute() {
     })
     .catch((err) => console.log(err));
 }
-// function accessAdminRoleRoute() {
-//   const accessToken = 'Bearer '.concat(accessTokenInStore);
-//   fetch('http://localhost:3001/users', {
-//     headers: {
-//       Authorization: accessToken,
-//     },
-//     method: 'GET',
-//     credentials: 'include', // to send the refresh_token in cookie
-//   })
-//     .then((res) => res.json())
-//     .then((data) => {
-//       console.log(data);
-//     })
-//     .catch((err) => console.log(err));
-// }
+
+function accessAdminRoleRoute() {
+  const accessToken = 'Bearer '.concat(accessTokenInStore);
+  fetch('http://localhost:3001/users', {
+    headers: {
+      Authorization: accessToken,
+    },
+    method: 'GET',
+    credentials: 'include', // to send the refresh_token in cookie
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      console.log(data);
+    })
+    .catch((err) => console.log(err));
+}
+
+function createRole() {
+  const accessToken = 'Bearer '.concat(accessTokenInStore);
+  fetch('http://localhost:3001/users/role', {
+    headers: {
+      Authorization: accessToken,
+      'Content-Type': 'application/json',
+    },
+    method: 'POST',
+    credentials: 'include', // to send the refresh_token in cookie
+    body: JSON.stringify({ name: 'user' }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      console.log(data);
+      if (data.access_token) {
+        accessTokenInStore = data.access_token; // save data.access_token in redux
+      }
+    })
+    .catch((err) => console.log(err));
+}
 
 // function getProfileInfo() {
 //   fetch('http://localhost:3001/users/profile', {
@@ -129,19 +151,23 @@ const Home: NextPage = () => (
   <div className={styles.container}>
     {/* <LoginForm /> */}
     <ButtonComponent title='login' onClick={login}></ButtonComponent>
-    {/* <ButtonComponent
+    <ButtonComponent
       title='access admin role protected route'
       onClick={accessAdminRoleRoute}
-    ></ButtonComponent> */}
+    ></ButtonComponent>
     <ButtonComponent
       title='access protected test route'
       onClick={accessProtectedRoute}
+    ></ButtonComponent>
+    <ButtonComponent
+      title='add new role'
+      onClick={createRole}
     ></ButtonComponent>
     <ButtonComponent title='logout' onClick={logout}></ButtonComponent>
     <ButtonComponent
       title='register'
       onClick={() => {
-        register('ina', 'pass1234', 'test@abv.bg');
+        register('ivan', '01234567', 'ivan@gmail.com');
       }}
     ></ButtonComponent>
   </div>
