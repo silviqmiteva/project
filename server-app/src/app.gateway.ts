@@ -22,7 +22,7 @@ export class AppGateway
     this.server.emit('msgToClient', 'hi from server');
   }
 
-  afterInit(server: Server) {
+  afterInit() {
     this.logger.log('Init');
   }
 

@@ -1,5 +1,3 @@
-/* eslint-disable import/no-unresolved */
-/* eslint-disable import/extensions */
 import type { NextPage } from 'next';
 // import { io } from 'socket.io-client';
 import ButtonComponent from '../components/button/button';
@@ -19,13 +17,16 @@ function login() {
     headers: {
       'Content-Type': 'application/json',
     },
-    credentials: 'include', // important for cookie with refresh_token
+    credentials: 'include',
     body: JSON.stringify(user),
   })
-    .then((res) => res.json())
+    .then((res) => {
+      console.log(res);
+      return res.json();
+    })
     .then((data) => {
       console.log(data);
-      accessTokenInStore = data.access_token; // save data.access_token in redux
+      accessTokenInStore = data.access_token;
       // getProfileInfo();
     })
     .catch((err) => {
@@ -105,7 +106,7 @@ function accessAdminRoleRoute() {
       Authorization: accessToken,
     },
     method: 'GET',
-    credentials: 'include', // to send the refresh_token in cookie
+    credentials: 'include',
   })
     .then((res) => res.json())
     .then((data) => {
@@ -122,14 +123,14 @@ function createRole() {
       'Content-Type': 'application/json',
     },
     method: 'POST',
-    credentials: 'include', // to send the refresh_token in cookie
-    body: JSON.stringify({ name: 'user' }),
+    credentials: 'include',
+    body: JSON.stringify({ name: 'testrole' }),
   })
     .then((res) => res.json())
     .then((data) => {
       console.log(data);
       if (data.access_token) {
-        accessTokenInStore = data.access_token; // save data.access_token in redux
+        accessTokenInStore = data.access_token;
       }
     })
     .catch((err) => console.log(err));
@@ -167,7 +168,7 @@ const Home: NextPage = () => (
     <ButtonComponent
       title='register'
       onClick={() => {
-        register('ivan', '01234567', 'ivan@gmail.com');
+        register('pesho', '01234567', 'pesho@gmail.com');
       }}
     ></ButtonComponent>
   </div>
@@ -179,7 +180,7 @@ const Home: NextPage = () => (
 //   console.log('Connected with server : ', socket.connected);
 // });
 
-// socket.on('numberToClient', (data) => {
+// socket.on('numberToClient', (data: any) => {
 //   console.log(data); // from server
 // });
 

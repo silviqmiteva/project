@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { LocalAuthGuard } from './local-auth.guard';
 import { AuthService } from './auth.service';
-import { CreateUserDto } from 'src/users/dto/createUserDto.dto';
+import { CreateUserDto } from '../users/dto/createUserDto.dto';
 import { Response } from 'express';
 import { JwtAuthGuard } from './jwt-auth.guard';
 
@@ -29,7 +29,6 @@ export class AuthController {
 
   @Post('register')
   register(@Body() createUserDto: CreateUserDto): any {
-    console.log('user data ', createUserDto);
     return this.authService.registerUser(createUserDto);
   }
 
