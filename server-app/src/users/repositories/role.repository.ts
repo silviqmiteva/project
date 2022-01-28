@@ -14,4 +14,8 @@ export class RoleRepository {
     const newRole = new this.roleModel(role);
     return newRole.save();
   }
+
+  async deleteManyRoles(obj: object): Promise<any> {
+    return this.roleModel.deleteMany({ _id: { $in: obj['rolesId'] } }).lean();
+  }
 }

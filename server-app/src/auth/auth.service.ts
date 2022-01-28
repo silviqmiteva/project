@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import * as randomToken from 'rand-token';
@@ -8,8 +8,8 @@ import { jwtConstants } from './constants';
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UsersService,
     private jwtService: JwtService,
+    private usersService: UsersService,
   ) {}
 
   async validateUser(username: string, pass: string): Promise<any> {
@@ -50,14 +50,11 @@ export class AuthService {
       expiresIn: jwtConstants.SECRET_REFRESH_EXPIRED_TIME,
     });
 
-    await this.usersService.findOneAndUpdate(
-      { id: userId },
-      { refresh_token: refreshToken },
-    );
+    await this.usersService.findOneByUserIdAndUpdatToken(userId, refreshToken);
     return refreshToken;
   }
 
-  logout(id: string, refToken: string) {
-    this.usersService.logoutUser(id, refToken);
+  async logout(id: string): Promise<any> {
+    return this.usersService.logoutUser(id);
   }
 }
