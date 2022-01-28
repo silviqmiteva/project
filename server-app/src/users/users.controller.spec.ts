@@ -18,6 +18,8 @@ describe('UsersController', () => {
     createRole: jest.fn((role) => {
       return;
     }),
+    deleteUsers: jest.fn(),
+    deleteRoles: jest.fn(),
   };
 
   const req: any = {
@@ -58,8 +60,30 @@ describe('UsersController', () => {
   it('should create a user role', () => {
     const newRole = jest.spyOn(controller, 'createRole');
     const createRole = jest.spyOn(service, 'createRole');
-    controller.createRole(req);
+    controller.createRole({
+      name: 'roleNew',
+    });
     expect(newRole).toBeCalledTimes(1);
     expect(createRole).toBeCalledTimes(1);
+  });
+
+  it('should delete users', () => {
+    const users = jest.spyOn(controller, 'deleteUsers');
+    const deleteUsers = jest.spyOn(service, 'deleteUsers');
+    controller.deleteUsers({
+      usersId: ['1', '2'],
+    });
+    expect(users).toBeCalledTimes(1);
+    expect(deleteUsers).toBeCalledTimes(1);
+  });
+
+  it('should delete roles', () => {
+    const roles = jest.spyOn(controller, 'deleteRoles');
+    const deleteRoles = jest.spyOn(service, 'deleteRoles');
+    controller.deleteRoles({
+      rolesId: ['1', '2'],
+    });
+    expect(roles).toBeCalledTimes(1);
+    expect(deleteRoles).toBeCalledTimes(1);
   });
 });

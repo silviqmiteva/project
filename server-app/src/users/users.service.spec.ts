@@ -15,10 +15,11 @@ describe('UsersService', () => {
       return;
     }),
     findOne: jest.fn((username: string) => {
-      return;
+      return { refresh_token: '123a' };
     }),
     findOneAndUpdate: jest.fn(),
     getAllUsers: jest.fn(),
+    deleteManyUsers: jest.fn(),
   };
   const mockBlacklistRepository = {
     create: jest.fn(),
@@ -26,6 +27,7 @@ describe('UsersService', () => {
   };
   const mockRoleRepository = {
     create: jest.fn(),
+    deleteManyRoles: jest.fn(),
   };
 
   const user = {
@@ -109,13 +111,15 @@ describe('UsersService', () => {
   it('should logout user', async () => {
     jest.clearAllMocks();
     const logout = jest.spyOn(service, 'logoutUser');
-    const find = jest.spyOn(userRepository, 'findOneAndUpdate');
+    const find = jest.spyOn(userRepository, 'findOne');
     const create = jest.spyOn(blacklistRepository, 'create');
+    const updateToken = jest.spyOn(userRepository, 'findOneAndUpdate');
 
-    service.logoutUser('', '');
+    await service.logoutUser('61e692115985e38070a9a629');
     expect(logout).toBeCalledTimes(1);
     expect(find).toBeCalledTimes(1);
     expect(create).toBeCalledTimes(1);
+    expect(updateToken).toBeCalledTimes(1);
   });
 
   it('should create new role', async () => {
@@ -136,5 +140,25 @@ describe('UsersService', () => {
     await service.getTokenFromBlacklist('');
     expect(getToken).toBeCalledTimes(1);
     expect(create).toBeCalledTimes(1);
+  });
+
+  it('should delete roles', async () => {
+    jest.clearAllMocks();
+    const deleteRoles = jest.spyOn(service, 'deleteRoles');
+    const deleteMany = jest.spyOn(roleRepository, 'deleteManyRoles');
+
+    await service.deleteRoles({ rolesId: ['1', '2'] });
+    expect(deleteRoles).toBeCalledTimes(1);
+    expect(deleteMany).toBeCalledTimes(1);
+  });
+
+  it('should delete users', async () => {
+    jest.clearAllMocks();
+    const deleteUsers = jest.spyOn(service, 'deleteUsers');
+    const deleteManyUsr = jest.spyOn(userRepository, 'deleteManyUsers');
+
+    await service.deleteUsers({ usersId: ['1', '2'] });
+    expect(deleteUsers).toBeCalledTimes(1);
+    expect(deleteManyUsr).toBeCalledTimes(1);
   });
 });

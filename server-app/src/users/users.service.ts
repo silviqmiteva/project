@@ -4,6 +4,7 @@ import { UserRepository } from './repositories/users.repository';
 import { BlacklistRepository } from './repositories/blacklist.repository';
 import { RoleRepository } from './repositories/role.repository';
 import { Role } from './roles/role.enum';
+import { Types } from 'mongoose';
 
 export type User = {
   username: string;
@@ -24,7 +25,12 @@ export class UsersService {
   async createUser(userData: any): Promise<User> {
     const username = userData.username;
     const email = userData.email;
-    const role = Role.User;
+    let role = '';
+    if (userData.isAdmin) {
+      role = Role.Admin;
+    } else {
+      role = Role.User;
+    }
     const refresh_token = '';
     let password = userData.password;
     const salt = bcrypt.genSaltSync(5);
@@ -43,10 +49,7 @@ export class UsersService {
     return this.usersRepository.findOne({ username: username });
   }
 
-  async findOneAndUpdate(
-    filter: object,
-    updates: object,
-  ): Promise<User | undefined> {
+  async findOneAndUpdate(filter: any, updates: any): Promise<User | undefined> {
     return this.usersRepository.findOneAndUpdate(filter, updates);
   }
 
@@ -62,13 +65,31 @@ export class UsersService {
     return this.usersRepository.findOne({ id: userId });
   }
 
-  logoutUser(userId: string, refToken: string) {
-    this.usersRepository.findOneAndUpdate(
-      { id: userId },
+  async logoutUser(userId: string): Promise<any> {
+    const user = await this.usersRepository.findOne({ id: userId });
+    await this.blacklistRepository.create({
+      refresh_token: user.refresh_token,
+    });
+
+    return this.usersRepository.findOneAndUpdate(
+      { _id: new Types.ObjectId(userId) },
       { refresh_token: '' },
     );
+  }
 
-    this.blacklistRepository.create({ refresh_token: refToken });
+  async findOneByUserIdAndUpdatToken(
+    userId: string,
+    refToken: string,
+  ): Promise<any> {
+    const obj = new Types.ObjectId(userId);
+    return this.usersRepository.findOneAndUpdate(
+      { _id: obj },
+      { refresh_token: refToken },
+    );
+  }
+
+  async deleteRoles(ids: object): Promise<any> {
+    return this.roleRepository.deleteManyRoles(ids);
   }
 
   async createRole(name: string): Promise<any> {
@@ -77,5 +98,9 @@ export class UsersService {
 
   async getTokenFromBlacklist(token: string): Promise<any> {
     return this.blacklistRepository.findOne({ refresh_token: token });
+  }
+
+  async deleteUsers(ids: object): Promise<any> {
+    return this.usersRepository.deleteManyUsers(ids);
   }
 }

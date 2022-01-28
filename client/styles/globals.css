@@ -14,6 +14,29 @@ a {
 * {
   box-sizing: border-box;
 }
-#components-grid-demo-flex-align [class~='ant-row'] {
-  background: rgba(128, 128, 128, 0.08);
+
+.formStyle {
+  padding: 40px !important;
+  top: 20%;
+  /* background: linear-gradient(90deg, gray 0%, lightgray 100%); */
+  background-color: lightgray;
+}
+.container {
+  padding: 0 2rem;
+  height: 100%;
+  /* background-color: black; */
+}
+
+.main {
+  min-height: 100vh;
+  padding: 4rem 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.errorMessage {
+  color: red !important;
 }

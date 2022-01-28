@@ -13,6 +13,7 @@ describe('AuthService', () => {
     createUser: jest.fn(),
     findOneAndUpdate: jest.fn(),
     logoutUser: jest.fn(),
+    findOneByUserIdAndUpdatToken: jest.fn(),
   };
   const mockJwtService = {
     sign: jest.fn(),
@@ -68,7 +69,10 @@ describe('AuthService', () => {
   it('should get refresh token', async () => {
     const getRefreshToken = jest.spyOn(authService, 'getRefreshToken');
     const signToken = jest.spyOn(jwtService, 'sign');
-    const findOneAndUpdate = jest.spyOn(userService, 'findOneAndUpdate');
+    const findOneAndUpdate = jest.spyOn(
+      userService,
+      'findOneByUserIdAndUpdatToken',
+    );
 
     await authService.getRefreshToken('');
     expect(getRefreshToken).toBeCalledTimes(1);
@@ -76,11 +80,11 @@ describe('AuthService', () => {
     expect(findOneAndUpdate).toBeCalledTimes(1);
   });
 
-  it('should logout user', () => {
+  it('should logout user', async () => {
     const logout = jest.spyOn(authService, 'logout');
     const logoutUser = jest.spyOn(userService, 'logoutUser');
 
-    authService.logout('', '');
+    await authService.logout('1');
     expect(logout).toBeCalledTimes(1);
     expect(logoutUser).toBeCalledTimes(1);
   });

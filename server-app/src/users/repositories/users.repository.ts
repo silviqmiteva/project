@@ -30,4 +30,8 @@ export class UserRepository {
   async getAllUsers(): Promise<User[]> {
     return this.userModel.find().lean();
   }
+
+  async deleteManyUsers(obj: object): Promise<any> {
+    return this.userModel.deleteMany({ _id: { $in: obj['usersId'] } }).lean();
+  }
 }

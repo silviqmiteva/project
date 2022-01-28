@@ -40,6 +40,9 @@ describe('AuthController', () => {
     logout: jest.fn((id: string, token: string) => {
       return;
     }),
+    validateUser: jest.fn((usrname: string, password: string) => {
+      return { username: usrname, _id: '1' };
+    }),
   };
 
   beforeEach(async () => {
@@ -68,24 +71,26 @@ describe('AuthController', () => {
     expect(el).toBeCalledTimes(1);
   });
 
-  it('should logout user', () => {
+  it('should logout user', async () => {
+    const userObj = { userId: '1' };
     const el = jest.spyOn(controller, 'logout');
     const logout = jest.spyOn(service, 'logout');
-    controller.logout(mockRequest);
+    await controller.logout(userObj);
 
     expect(el).toBeCalledTimes(1);
     expect(logout).toBeCalledTimes(1);
-    expect(el).toHaveBeenCalledWith(mockRequest);
+    expect(el).toHaveBeenCalledWith(userObj);
   });
 
   it('should login user', async () => {
+    const userCredentials = { username: 'qsen', password: '12345678' };
     const el = jest.spyOn(controller, 'login');
     const aToken = jest.spyOn(service, 'getJwtToken');
     const rToken = jest.spyOn(service, 'getRefreshToken');
-    await controller.login(mockRequest, mockResponse);
+    await controller.login(userCredentials, mockResponse);
 
     expect(el).toBeCalledTimes(1);
-    expect(el).toHaveBeenCalledWith(mockRequest, mockResponse);
+    expect(el).toHaveBeenCalledWith(userCredentials, mockResponse);
     expect(rToken).toBeCalledTimes(1);
     expect(aToken).toBeCalledTimes(1);
     el.mockReset();
